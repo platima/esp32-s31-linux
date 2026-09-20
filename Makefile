@@ -142,7 +142,7 @@ opensbi:
 	@mkdir -p "$(OPENSBI_SRC)"
 	@cp -R "$(OPENSBI_DIR)"/* "$(OPENSBI_SRC)/"
 	@rm -rf "$(OPENSBI_OUT)"
-	@for patch_file in $(OPENSBI_PATCHES); do patch -d "$(OPENSBI_SRC)" -p1 -s < "$$patch_file"; done
+	@for patch_file in $(OPENSBI_PATCHES); do patch -d "$(OPENSBI_SRC)" -p1 -s < "$$patch_file" || exit 1; done
 	@$(GMAKE) -C "$(OPENSBI_SRC)" \
 		PLATFORM_DIR="$(CURDIR)/opensbi/platform" PLATFORM=esp32s31 \
 		O="$(OPENSBI_OUT)" CROSS_COMPILE="$(CROSS_COMPILE)"
@@ -156,7 +156,7 @@ $(LINUX_PREP_STAMP): $(LINUX_PATCHES)
 	@rm -rf "$(LINUX_SRC)"
 	@mkdir -p "$(LINUX_SRC)"
 	@cp -R "$(LINUX_DIR)"/* "$(LINUX_SRC)/"
-	@for patch_file in $(LINUX_PATCHES); do patch -d "$(LINUX_SRC)" -p1 -s < "$$patch_file"; done
+	@for patch_file in $(LINUX_PATCHES); do patch -d "$(LINUX_SRC)" -p1 -s < "$$patch_file" || exit 1; done
 	@touch "$@"
 
 linux: $(LINUX_PREP_STAMP)
