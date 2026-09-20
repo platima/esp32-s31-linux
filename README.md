@@ -340,6 +340,64 @@ BSD-2-Clause, the kernel drivers and patches under `linux/` are GPL-2.0, and
 `shared/esp32s31-wifi-ipc.h` is dual GPL-2.0/BSD-2-Clause because both worlds
 compile it.
 
+## Binary releases and corresponding source
+
+This fork exists to publish compiled images of annoyedmilk's port. Upstream
+ships source only, and its build expects a macOS host, so the
+[releases page](https://github.com/platima/esp32-s31-linux/releases) carries
+the flash binaries and a ready to write microSD image for anyone who wants to
+try the port without reproducing the build.
+
+The fork tracks upstream with one deliberate difference. Upstream's kernel
+patch series does not apply cleanly under GNU patch: two hunks in
+`linux/patches/0007-cache-esp32s31-cache-controller.patch` carry more leading
+context than trailing, which costs more fuzz than patch allows by default,
+and the prep rule does not check the exit status. The rejected hunk is the
+one that declares non-coherent DMA support and sets the cache line size, so a
+build from upstream today reports success and produces a kernel that boots
+and then corrupts data under SD or USB traffic. This fork refits those hunks
+and makes both prep loops fail the build rather than record a half patched
+tree as good. The released binaries were built with that hunk applied.
+
+Each release is tagged, and the tag is the complete corresponding source for
+the binaries attached to it.
+
+Those binaries include GPL-2.0 components, notably the Linux kernel and
+BusyBox, and GPL-3.0 or later components, notably bash, coreutils, readline
+and less. Both licences require source to be available to anyone who has the
+binaries, and the release tag is how that is done here: source is served from
+the same repository as the binaries it corresponds to.
+
+To reconstruct the source tree for a release, say `v2026.09.20`:
+
+```sh
+git clone https://github.com/platima/esp32-s31-linux
+cd esp32-s31-linux
+git checkout v2026.09.20
+git submodule update --init --recursive
+```
+
+That gives the pinned Linux, Buildroot and OpenSBI trees, the kernel and
+OpenSBI patch series, the kernel overlay, the Buildroot external tree and
+defconfig, and the Makefile and scripts that drive the build. Every release
+also attaches Buildroot's `legal-info` manifests, which name the version,
+licence, licence text and upstream archive URL of every target and host
+package, so per package source is recoverable independently of this
+repository.
+
+A release tag, its submodule pins and its attached manifests stay in place
+for as long as that release is downloadable. If a tag is missing, a submodule
+pin has gone unreachable, or anything else about the corresponding source is
+incomplete, open an issue and it will be fixed.
+
+The cross toolchain is not redistributed. Buildroot builds its own GCC and
+musl during the build, both named with upstream URLs in the manifests, and
+the Espressif `riscv32-esp-elf` toolchain that compiles the kernel, OpenSBI
+and the loader comes from ESP-IDF.
+
+None of this is legal advice. It is a description of how this fork keeps
+source available, and of what the licences ask for on their face.
+
 ## Current limitations
 
 - Wi-Fi is an Ethernet-style netdev fed by the hart 0 firmware over shared

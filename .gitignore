@@ -5,3 +5,11 @@ __pycache__/
 .DS_Store
 logs/*.log
 logs/*.json
+
+# Release artefacts, published as GitHub release assets rather than committed
+built.zip
+*.img
+*.img.zip
+*.img.gz
+*.img.xz
+legal-info/
