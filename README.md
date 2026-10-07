@@ -182,10 +182,12 @@ with p1 mounted. Linux does not clear that flag again, also not at a clean
 shutdown. To clear it:
 
 ```sh
-/etc/init.d/S10sdcard stop
-fsck.fat -a /dev/mmcblk0p1
+umount /mnt/sd && fsck.fat -a /dev/mmcblk0p1
 /etc/init.d/S10sdcard start
 ```
+
+`fsck.fat` does not check if p1 is mounted, and it must not run on a mounted
+p1. If `umount` fails, a program still uses `/mnt/sd`.
 
 `fsck.fat` needs approximately 8 bytes of memory for each cluster of p1. That
 is less than 1 MB for the 64 MiB p1 of the card image, and more than the board
